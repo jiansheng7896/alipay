@@ -133,7 +133,6 @@ class AopClient
         $encodeArray = Array();
         $postMultipart = false;
 
-
         if (is_array($postFields) && 0 < count($postFields)) {
 
             foreach ($postFields as $k => $v) {
@@ -501,7 +500,6 @@ class AopClient
 
     public function verify($data, $sign, $rsaPublicKeyFilePath, $signType = 'RSA')
     {
-
         if ($this->checkEmpty($this->alipayPublicKey)) {
 
             $pubKey = $this->alipayrsaPublicKey;
@@ -614,7 +612,7 @@ class AopClient
         return $strnull;
     }
 
-    function splitCN($cont, $n = 0, $subnum, $charset)
+    public function splitCN($cont, $n = 0, $subnum, $charset)
     {
         //$len = strlen($cont) / 3;
         $arrr = array();
@@ -628,7 +626,7 @@ class AopClient
         return $arrr;
     }
 
-    function subCNchar($str, $start = 0, $length, $charset = "gbk")
+    public function subCNchar($str, $start = 0, $length, $charset = "gbk")
     {
         if (strlen($str) <= $length) {
             return $str;
@@ -642,11 +640,9 @@ class AopClient
         return $slice;
     }
 
-    function parserResponseSubCode($request, $responseContent, $respObject, $format)
+    public function parserResponseSubCode($request, $responseContent, $respObject, $format)
     {
-
         if ("json" == $format) {
-
             $apiName = $request['apiMethodName'];
             $rootNodeName = str_replace(".", "_", $apiName) . $this->RESPONSE_SUFFIX;
             $errorNodeName = $this->ERROR_RESPONSE;
@@ -658,7 +654,6 @@ class AopClient
                 // 内部节点对象
                 $rInnerObject = $respObject->$rootNodeName;
             } elseif ($errorIndex > 0) {
-
                 $rInnerObject = $respObject->$errorNodeName;
             } else {
                 return null;
@@ -666,62 +661,45 @@ class AopClient
 
             // 存在属性则返回对应值
             if (isset($rInnerObject->sub_code)) {
-
                 return $rInnerObject->sub_code;
             } else {
-
                 return null;
             }
-
-
         } elseif ("xml" == $format) {
-
             // xml格式sub_code在同一层级
             return $respObject->sub_code;
-
         }
-
-
     }
 
-    function parserJSONSignData($request, $responseContent, $responseJSON)
+    public function parserJSONSignData($request, $responseContent, $responseJSON)
     {
-
         $signData = new SignData();
 
         $signData->sign = $this->parserJSONSign($responseJSON);
         $signData->signSourceData = $this->parserJSONSignSource($request, $responseContent);
 
-
         return $signData;
 
     }
 
-    function parserJSONSignSource($request, $responseContent)
+    public function parserJSONSignSource($request, $responseContent)
     {
-
         $apiName = $request['apiMethodName'];
         $rootNodeName = str_replace(".", "_", $apiName) . $this->RESPONSE_SUFFIX;
 
         $rootIndex = strpos($responseContent, $rootNodeName);
         $errorIndex = strpos($responseContent, $this->ERROR_RESPONSE);
 
-
         if ($rootIndex > 0) {
-
             return $this->parserJSONSource($responseContent, $rootNodeName, $rootIndex);
         } else if ($errorIndex > 0) {
-
             return $this->parserJSONSource($responseContent, $this->ERROR_RESPONSE, $errorIndex);
         } else {
-
             return null;
         }
-
-
     }
 
-    function parserJSONSource($responseContent, $nodeName, $nodeIndex)
+    public function parserJSONSource($responseContent, $nodeName, $nodeIndex)
     {
         $signDataStartIndex = $nodeIndex + strlen($nodeName) + 2;
         $signIndex = strpos($responseContent, "\"" . $this->SIGN_NODE_NAME . "\"");
@@ -744,45 +722,31 @@ class AopClient
 
     public function parserXMLSignData($request, $responseContent)
     {
-
-
         $signData = new SignData();
 
         $signData->sign = $this->parserXMLSign($responseContent);
         $signData->signSourceData = $this->parserXMLSignSource($request, $responseContent);
 
-
         return $signData;
-
-
     }
 
     public function parserXMLSignSource($request, $responseContent)
     {
-
-
         $apiName = $request['apiMethodName'];
         $rootNodeName = str_replace(".", "_", $apiName) . $this->RESPONSE_SUFFIX;
-
 
         $rootIndex = strpos($responseContent, $rootNodeName);
         $errorIndex = strpos($responseContent, $this->ERROR_RESPONSE);
         //        $this->echoDebug("<br/>rootNodeName:" . $rootNodeName);
         //        $this->echoDebug("<br/> responseContent:<xmp>" . $responseContent . "</xmp>");
 
-
         if ($rootIndex > 0) {
-
             return $this->parserXMLSource($responseContent, $rootNodeName, $rootIndex);
         } else if ($errorIndex > 0) {
-
             return $this->parserXMLSource($responseContent, $this->ERROR_RESPONSE, $errorIndex);
         } else {
-
             return null;
         }
-
-
     }
 
     public function parserXMLSource($responseContent, $nodeName, $nodeIndex)
@@ -797,10 +761,7 @@ class AopClient
             return null;
         }
 
-
         return substr($responseContent, $signDataStartIndex, $indexLen);
-
-
     }
 
     public function parserXMLSign($responseContent)
@@ -810,7 +771,6 @@ class AopClient
 
         $indexOfSignNode = strpos($responseContent, $signNodeName);
         $indexOfSignEndNode = strpos($responseContent, $signEndNodeName);
-
 
         if ($indexOfSignNode < 0 || $indexOfSignEndNode < 0) {
             return null;
@@ -823,10 +783,8 @@ class AopClient
         if ($indexLen < 0) {
             return null;
         }
-
         // 签名
         return substr($responseContent, $nodeIndex, $indexLen);
-
     }
 
     /**
@@ -839,46 +797,27 @@ class AopClient
      */
     public function checkResponseSign($request, $signData, $resp, $respObject)
     {
-
         if (!$this->checkEmpty($this->alipayPublicKey) || !$this->checkEmpty($this->alipayrsaPublicKey)) {
 
-
             if ($signData == null || $this->checkEmpty($signData->sign) || $this->checkEmpty($signData->signSourceData)) {
-
                 throw new \Exception(" check sign Fail! The reason : signData is Empty");
             }
-
-
             // 获取结果sub_code
             $responseSubCode = $this->parserResponseSubCode($request, $resp, $respObject, $this->format);
-
-
             if (!$this->checkEmpty($responseSubCode) || ($this->checkEmpty($responseSubCode) && !$this->checkEmpty($signData->sign))) {
-
                 $checkResult = $this->verify($signData->signSourceData, $signData->sign, $this->alipayPublicKey, $this->signType);
-
-
                 if (!$checkResult) {
-
                     if (strpos($signData->signSourceData, "\\/") > 0) {
-
                         $signData->signSourceData = str_replace("\\/", "/", $signData->signSourceData);
-
                         $checkResult = $this->verify($signData->signSourceData, $signData->sign, $this->alipayPublicKey, $this->signType);
-
                         if (!$checkResult) {
                             throw new \Exception("check sign Fail! [sign=" . $signData->sign . ", signSourceData=" . $signData->signSourceData . "]");
                         }
-
                     } else {
-
                         throw new \Exception("check sign Fail! [sign=" . $signData->sign . ", signSourceData=" . $signData->signSourceData . "]");
                     }
-
                 }
             }
-
-
         }
     }
 
@@ -895,7 +834,6 @@ class AopClient
 
     private function encryptJSONSignSource($request, $responseContent)
     {
-
         $parsetItem = $this->parserEncryptJSONSignSource($request, $responseContent);
 
         $bodyIndexContent = substr($responseContent, 0, $parsetItem->startIndex);
@@ -904,13 +842,11 @@ class AopClient
         $aopEncrypt = new AopEncrypt();
         $bizContent = $aopEncrypt->decrypt($parsetItem->encryptContent, $this->encryptKey);
         return $bodyIndexContent . $bizContent . $bodyEndContent;
-
     }
 
 
     private function parserEncryptJSONSignSource($request, $responseContent)
     {
-
         $apiName = $request['apiMethodName'];
         $rootNodeName = str_replace(".", "_", $apiName) . $this->RESPONSE_SUFFIX;
 
@@ -928,8 +864,6 @@ class AopClient
 
             return null;
         }
-
-
     }
 
 
@@ -949,7 +883,6 @@ class AopClient
 
         $encContent = substr($responseContent, $signDataStartIndex + 1, $indexLen - 2);
 
-
         $encryptParseItem = new EncryptParseItem();
 
         $encryptParseItem->encryptContent = $encContent;
@@ -957,14 +890,12 @@ class AopClient
         $encryptParseItem->endIndex = $signDataEndIndex;
 
         return $encryptParseItem;
-
     }
 
     // 获取加密内容
 
     private function encryptXMLSignSource($request, $responseContent)
     {
-
         $parsetItem = $this->parserEncryptXMLSignSource($request, $responseContent);
 
         $bodyIndexContent = substr($responseContent, 0, $parsetItem->startIndex);
@@ -977,35 +908,25 @@ class AopClient
 
     private function parserEncryptXMLSignSource($request, $responseContent)
     {
-
-
         $apiName = $request['apiMethodName'];
         $rootNodeName = str_replace(".", "_", $apiName) . $this->RESPONSE_SUFFIX;
-
 
         $rootIndex = strpos($responseContent, $rootNodeName);
         $errorIndex = strpos($responseContent, $this->ERROR_RESPONSE);
         //        $this->echoDebug("<br/>rootNodeName:" . $rootNodeName);
         //        $this->echoDebug("<br/> responseContent:<xmp>" . $responseContent . "</xmp>");
 
-
         if ($rootIndex > 0) {
-
             return $this->parserEncryptXMLItem($responseContent, $rootNodeName, $rootIndex);
         } else if ($errorIndex > 0) {
-
             return $this->parserEncryptXMLItem($responseContent, $this->ERROR_RESPONSE, $errorIndex);
         } else {
-
             return null;
         }
-
-
     }
 
     private function parserEncryptXMLItem($responseContent, $nodeName, $nodeIndex)
     {
-
         $signDataStartIndex = $nodeIndex + strlen($nodeName) + 1;
 
         $xmlStartNode = "<" . $this->ENCRYPT_XML_NODE_NAME . ">";
@@ -1013,7 +934,6 @@ class AopClient
 
         $indexOfXmlNode = strpos($responseContent, $xmlEndNode);
         if ($indexOfXmlNode < 0) {
-
             $item = new EncryptParseItem();
             $item->encryptContent = null;
             $item->startIndex = 0;
@@ -1031,17 +951,12 @@ class AopClient
         $encryptParseItem->endIndex = $indexOfXmlNode + strlen($xmlEndNode);
 
         return $encryptParseItem;
-
     }
 
-    function echoDebug($content)
+    public function echoDebug($content)
     {
-
         if ($this->debugInfo) {
             echo "<br/>" . $content;
         }
-
     }
-
-
 }
