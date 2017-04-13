@@ -1,0 +1,16 @@
+{
+    "name": "chunlei/alipay",
+    "description": "alipay",
+    "authors": [
+        {
+            "name": "lichunlei",
+            "email": "nosjoy@163.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Chunlei\\Alipay\\": "src/Alipay/"
+        }
+    },
+    "require": {}
+}
