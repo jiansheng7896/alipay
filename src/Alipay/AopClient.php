@@ -737,13 +737,12 @@ class AopClient
 
     }
 
-    function parserJSONSign($responseJSon)
+    public function parserJSONSign($responseJSon)
     {
-
-        return $responseJSon->sign;
+        return isset($responseJSon->sign) ? $responseJSon->sign : null;
     }
 
-    function parserXMLSignData($request, $responseContent)
+    public function parserXMLSignData($request, $responseContent)
     {
 
 
@@ -758,7 +757,7 @@ class AopClient
 
     }
 
-    function parserXMLSignSource($request, $responseContent)
+    public function parserXMLSignSource($request, $responseContent)
     {
 
 
@@ -786,7 +785,7 @@ class AopClient
 
     }
 
-    function parserXMLSource($responseContent, $nodeName, $nodeIndex)
+    public function parserXMLSource($responseContent, $nodeName, $nodeIndex)
     {
         $signDataStartIndex = $nodeIndex + strlen($nodeName) + 1;
         $signIndex = strpos($responseContent, "<" . $this->SIGN_NODE_NAME . ">");
@@ -804,7 +803,7 @@ class AopClient
 
     }
 
-    function parserXMLSign($responseContent)
+    public function parserXMLSign($responseContent)
     {
         $signNodeName = "<" . $this->SIGN_NODE_NAME . ">";
         $signEndNodeName = "</" . $this->SIGN_NODE_NAME . ">";
