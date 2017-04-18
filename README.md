@@ -15,7 +15,8 @@
             ],
         ];
         $c = new Alipay\AopClient("2016122204517457", storage_path('app/public/key/private_key.pem'), storage_path('app/public/key/public_key.pem'));
-        $c->gatewayUrl = "https://openapi.alipaydev.com/gateway.do";
+        //测试网管
+        $c->gatewayUrl = "https://openapi.alipaydev.com/gateway.do";
 
         $response= $c->execute($request);
         if ($response->alipay_trade_query_response->code == 10000) {
